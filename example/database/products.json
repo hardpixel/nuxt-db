@@ -1,0 +1,50 @@
+[
+  {
+    "slug": "dell-vostro",
+    "name": "Dell Vostro",
+    "inStock": 200,
+    "categories": [
+      "laptop"
+    ]
+  },
+  {
+    "slug": "dell-inspiron",
+    "name": "Dell Inspiron",
+    "inStock": 50,
+    "categories": [
+      "laptop"
+    ]
+  },
+  {
+    "slug": "dell-xps",
+    "name": "Dell XPS",
+    "inStock": 1,
+    "categories": [
+      "laptop"
+    ]
+  },
+  {
+    "slug": "redmi-note-10",
+    "name": "Redmi Note 10",
+    "inStock": 165,
+    "categories": [
+      "smartphone"
+    ]
+  },
+  {
+    "slug": "poco-phone-x3",
+    "name": "Poco Phone X3",
+    "inStock": 258,
+    "categories": [
+      "smartphone"
+    ]
+  },
+  {
+    "slug": "galaxy-s20",
+    "name": "Samsung S20",
+    "inStock": 100,
+    "categories": [
+      "smartphone"
+    ]
+  }
+]

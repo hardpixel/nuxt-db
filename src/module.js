@@ -1,0 +1,95 @@
+import { fileURLToPath } from 'url'
+import { resolve, join } from 'pathe'
+import { joinURL } from 'ufo'
+import { defineNuxtModule, addPlugin, addComponent } from '@nuxt/kit'
+import { Database } from './builder'
+
+import hashSum from 'hash-sum'
+
+export default defineNuxtModule({
+  meta: {
+    name: 'nuxt-db',
+    configKey: 'database',
+    compatibility: {
+      nuxt: '^3.0.0'
+    }
+  },
+  defaults: {
+    dir: 'database',
+    markdown: {},
+    yaml: {},
+    csv: {},
+    json: {},
+    json5: {},
+    xml: {},
+    extendParser: {}
+  },
+  async setup(options, nuxt) {
+    const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
+    nuxt.options.build.transpile.push(runtimeDir, 'nuxt-db')
+
+    const isDev    = nuxt.options.dev
+    const srcDir   = nuxt.options.srcDir
+    const pubPath  = nuxt.options.build.publicPath
+    const baseURL  = nuxt.options.router.base
+
+    const dbFolder = 'database'
+    const buildDir = resolve(nuxt.options.buildDir, dbFolder)
+    const pubDir   = resolve(nuxt.options.buildDir, 'dist', 'client', dbFolder)
+    const database = new Database({ ...options, isDev, srcDir, buildDir })
+
+    database.hook('file:beforeInsert', item => {
+      nuxt.callHook('database:file:beforeInsert', item, database)
+    })
+
+    database.hook('file:beforeParse', file => {
+      nuxt.callHook('database:file:beforeParse', file)
+    })
+
+    database.hook('file:updated', file => {
+      nuxt.callHook('database:file:updated', file)
+    })
+
+    await database.init()
+
+    const dbHash = hashSum(database.db)
+    const dbName = `db-${dbHash}.json`
+    const dbUrl  = joinURL(baseURL, pubPath, dbFolder, dbName)
+    const dbPath = resolve(pubDir, dbName)
+    const dbDirs = database.dirs
+
+    nuxt.options.publicRuntimeConfig.db  = { dbUrl, dbDirs }
+    nuxt.options.privateRuntimeConfig.db = { dbPath }
+
+    addPlugin(resolve(runtimeDir, 'plugins', 'db.server'))
+    addPlugin(resolve(runtimeDir, 'plugins', 'db.client'))
+
+    addComponent({
+      name: 'NuxtContent',
+      filePath: resolve(runtimeDir, 'components', 'NuxtContent.vue')
+    })
+
+    nuxt.hook('autoImports:dirs', (dirs) => {
+      dirs.push(resolve(runtimeDir, 'composables'))
+    })
+
+    nuxt.hook('database:file:updated', async () => {
+      await database.save(pubDir, dbName)
+    })
+
+    nuxt.hook('build:done', async () => {
+      await database.save(pubDir, dbName)
+    })
+
+    nuxt.hook('nitro:generate', async ctx => {
+      const dbPath = join(ctx.output.publicDir, pubPath, dbFolder, dbName)
+      nuxt.options.privateRuntimeConfig.db.dbPath = dbPath
+
+      await database.save(pubDir, dbName)
+    })
+
+    nuxt.hook('close', async () => {
+      await database.close()
+    })
+  }
+})
