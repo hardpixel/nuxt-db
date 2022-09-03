@@ -2,8 +2,10 @@
   "name": "nuxt-db",
   "version": "0.1.0",
   "description": "JSON database module for Nuxt",
-  "repository": "hardpixel/nuxt-db",
+  "repository": "https://github.com/hardpixel/nuxt-db",
+  "author": "Jonian Guveli",
   "license": "MIT",
+  "private": false,
   "main": "./dist/module.cjs",
   "files": [
     "dist"
