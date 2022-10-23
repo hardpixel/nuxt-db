@@ -125,7 +125,7 @@ class Query {
       records = resp.map(({ item, ...$meta }) => ({ ...item, $meta }))
     }
 
-    if (order.langth) {
+    if (order.length) {
       records = sortOn(records, order)
     }
 
