@@ -2,9 +2,15 @@
   <main>
     <header>
       <h1>Nuxt DB</h1>
-      <client-only>
+      <div>
+        <input
+          placeholder="Search..."
+          type="text"
+          @input="onInput">
         <select @change="onChange">
-          <option value="all">
+          <option
+            value=""
+            selected>
             All models
           </option>
           <option
@@ -14,7 +20,7 @@
             {{ item }}
           </option>
         </select>
-      </client-only>
+      </div>
     </header>
     <pre>{{ data }}</pre>
   </main>
@@ -31,14 +37,16 @@ export default defineNuxtComponent({
     }
   },
   watch: {
-    async model(value) {
-      this.data = await this.$db(value)
+    async params() {
+      this.data = await this.$db(this.model)
+        .search(this.search)
         .fetch()
     }
   },
   data() {
     return {
-      model: 'all',
+      search: null,
+      model: null,
       models: [
         'Authors',
         'Posts',
@@ -47,9 +55,17 @@ export default defineNuxtComponent({
       ]
     }
   },
+  computed: {
+    params() {
+      return [this.model, this.search]
+    }
+  },
   methods: {
+    onInput({ target: { value } }) {
+      this.search = value == '' ? null : value
+    },
     onChange({ target: { value } }) {
-      this.model = value == 'all' ? null : value
+      this.model = value == '' ? null : value
     }
   }
 })
@@ -88,5 +104,9 @@ pre {
   border-radius: 5px;
   margin: 0;
   overflow-x: auto;
+}
+
+input, select {
+  margin-left: 1rem;
 }
 </style>
