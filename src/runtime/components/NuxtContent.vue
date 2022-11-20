@@ -1,7 +1,5 @@
 <template>
-  <component
-    :is="tag"
-    v-html="document.body" />
+  <div v-html="document.body" />
 </template>
 
 <script>
@@ -11,10 +9,6 @@ export default {
     document: {
       type: Object,
       required: true
-    },
-    tag: {
-      type: String,
-      default: 'div'
     }
   }
 }
