@@ -20,17 +20,17 @@ jobs:
 
     strategy:
       matrix:
-        node: [16.0, 17.0]
+        node: [14, 16, 18]
 
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install Yarn
-        run: npm install -g yarn
+      - name: Enable Corepack
+        run: corepack enable
 
       - name: Install dependencies
         run: yarn install
