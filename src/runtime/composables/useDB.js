@@ -23,7 +23,7 @@ export const useDB = (...args) => {
     }
   })
 
-  const path = `/${paths.join('/').replace(/\/+/g, '/')}`
+  const path = `/${paths.join('/')}`.replace(/\/+/g, '/')
   const many = dbDirs.some(dir => dir === path)
 
   if (paths.length) {
