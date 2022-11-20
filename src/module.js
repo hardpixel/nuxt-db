@@ -30,10 +30,10 @@ export default defineNuxtModule({
 
     const isDev    = nuxt.options.dev
     const srcDir   = nuxt.options.srcDir
-    const pubPath  = nuxt.options.build.publicPath
+    const pubPath  = nuxt.options.app.buildAssetsDir
     const baseURL  = nuxt.options.router.base
 
-    const dbFolder = 'database'
+    const dbFolder = join('.', pubPath, 'database')
     const buildDir = resolve(nuxt.options.buildDir, dbFolder)
     const pubDir   = resolve(nuxt.options.buildDir, 'dist', 'client', dbFolder)
     const database = new Database({ ...options, isDev, srcDir, buildDir })
@@ -54,12 +54,12 @@ export default defineNuxtModule({
 
     const dbHash = hashSum(database.db)
     const dbName = `db-${dbHash}.json`
-    const dbUrl  = joinURL(baseURL, pubPath, dbFolder, dbName)
+    const dbUrl  = joinURL(baseURL, dbFolder, dbName)
     const dbPath = resolve(pubDir, dbName)
     const dbDirs = database.dirs
 
-    nuxt.options.publicRuntimeConfig.db  = { dbUrl, dbDirs }
-    nuxt.options.privateRuntimeConfig.db = { dbPath }
+    nuxt.options.runtimeConfig.db = { dbPath, dbDirs }
+    nuxt.options.runtimeConfig.public.db = { dbUrl, dbDirs }
 
     addPlugin(resolve(runtimeDir, 'plugins', 'db.server'))
     addPlugin(resolve(runtimeDir, 'plugins', 'db.client'))
@@ -69,7 +69,7 @@ export default defineNuxtModule({
       filePath: resolve(runtimeDir, 'components', 'NuxtContent.vue')
     })
 
-    nuxt.hook('autoImports:dirs', (dirs) => {
+    nuxt.hook('imports:dirs', (dirs) => {
       dirs.push(resolve(runtimeDir, 'composables'))
     })
 
@@ -82,8 +82,8 @@ export default defineNuxtModule({
     })
 
     nuxt.hook('nitro:generate', async ctx => {
-      const dbPath = join(ctx.output.publicDir, pubPath, dbFolder, dbName)
-      nuxt.options.privateRuntimeConfig.db.dbPath = dbPath
+      const dbPath = join(ctx.output.publicDir, dbFolder, dbName)
+      nuxt.options.runtimeConfig.db.dbPath = dbPath
 
       await database.save(pubDir, dbName)
     })

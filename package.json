@@ -24,28 +24,29 @@
     "dev:prepare": "nuxt-module-build --stub && nuxi prepare example"
   },
   "dependencies": {
-    "@nuxt/kit": "npm:@nuxt/kit-edge@latest",
+    "@nuxt/kit": "^3.0.0",
     "chokidar": "^3.5.3",
     "csvtojson": "^2.0.10",
-    "fuse.js": "^6.5.3",
-    "graceful-fs": "^4.2.9",
+    "fuse.js": "^6.6.2",
+    "graceful-fs": "^4.2.10",
     "gray-matter": "^4.0.3",
     "hash-sum": "^2.0.0",
-    "hookable": "^5.1.1",
+    "hookable": "^5.4.2",
     "js-yaml": "^4.1.0",
-    "json5": "^2.2.0",
-    "markdown-it": "^12.3.2",
+    "json5": "^2.2.1",
+    "markdown-it": "^13.0.1",
     "mkdirp": "^1.0.4",
-    "pathe": "^0.2.0",
+    "pathe": "^1.0.0",
     "picodb": "^1.0.4",
-    "sort-on": "^5.0.0",
-    "ufo": "^0.8.1",
+    "sort-on": "^5.2.0",
+    "ufo": "^1.0.0",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
-    "@nuxt/module-builder": "latest",
-    "@nuxtjs/eslint-config": "^9.0.0",
-    "eslint": "^8.11.0",
-    "nuxt3": "latest"
+    "@nuxt/module-builder": "0.2.1",
+    "@nuxt/schema": "^3.0.0",
+    "@nuxtjs/eslint-config": "^12.0.0",
+    "eslint": "^8.28.0",
+    "nuxt": "^3.0.0"
   }
 }
