@@ -6,7 +6,7 @@
   "author": "Jonian Guveli",
   "license": "MIT",
   "private": false,
-  "main": "./dist/module.cjs",
+  "main": "./src/module.js",
   "files": [
     "dist"
   ],
