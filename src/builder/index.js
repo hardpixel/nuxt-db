@@ -1,8 +1,8 @@
-import { join, extname } from 'path'
+import { join, dirname, extname } from 'pathe'
+import { promises as fs } from 'fs'
 
-import gfs from 'graceful-fs'
+import fsDriver from 'unstorage/drivers/fs'
 import mkdirp from 'mkdirp'
-import chokidar from 'chokidar'
 import PicoDB from 'picodb'
 
 import { useLogger } from '@nuxt/kit'
@@ -10,7 +10,6 @@ import { Hookable } from 'hookable'
 
 import { Markdown, Yaml, Csv, Xml, Json, Json5 } from './parsers'
 
-const fs = gfs.promises
 const logger = useLogger('nuxt-db')
 
 const EXTENSIONS = ['.md', '.json', '.json5', '.yaml', '.yml', '.csv', '.xml']
@@ -24,6 +23,7 @@ export class Database extends Hookable {
     this.buildDir   = options.buildDir
     this.dir        = join(options.srcDir, options.dir)
     this.name       = `${options.dir}.json`
+    this.storage    = fsDriver({ base: this.dir, ignore: 'node_modules/**/*' })
 
     this.markdown   = new Markdown(options.markdown)
     this.yaml       = new Yaml(options.yaml)
@@ -47,11 +47,15 @@ export class Database extends Hookable {
     this.db   = PicoDB()
     this.dirs = ['/']
 
-    await this.walk(this.dir)
+    const keys = await this.storage.getKeys()
+
+    await Promise.all(keys.map(async key => {
+      await this.insertFile(key)
+    }))
 
     const [s, ns] = process.hrtime(startTime)
 
-    const count = await this.db.count({})
+    const count = keys.length
     const timer = Math.round(ns / 1e8)
 
     logger.info(`Parsed ${count} files in ${s}.${timer} seconds`)
@@ -67,31 +71,6 @@ export class Database extends Hookable {
 
     await mkdirp(dir)
     await fs.writeFile(path, json, 'utf-8')
-  }
-
-  async walk(dir) {
-    let files = []
-
-    try {
-      files = await fs.readdir(dir)
-    } catch (e) {
-      logger.warn(`DB: ${dir} does not exist!`)
-    }
-
-    await Promise.all(files.map(async file => {
-      const path = join(dir, file)
-      const stat = await fs.stat(path)
-
-      if (file.includes('node_modules') || (/(^|\/)\.[^/.]/g).test(file)) {
-        return
-      }
-
-      if (stat.isDirectory()) {
-        return this.walk(path)
-      } else if (stat.isFile()) {
-        return this.insertFile(path)
-      }
-    }))
   }
 
   async insertFile(path) {
@@ -130,7 +109,7 @@ export class Database extends Hookable {
       }
     }
 
-    logger.info(`Updated ${path.replace(this.srcDir, '.')}`)
+    logger.info(`Updated ${path}`)
   }
 
   async removeFile(path) {
@@ -143,7 +122,7 @@ export class Database extends Hookable {
       await this.db.deleteMany({ dir: npath })
     }
 
-    logger.info(`Removed ${path.replace(this.srcDir, '.')}`)
+    logger.info(`Removed ${path}`)
   }
 
   async parseFile(path) {
@@ -153,12 +132,9 @@ export class Database extends Hookable {
       return []
     }
 
-    const stat = await fs.stat(path)
-    const file = {
-      path,
-      extension,
-      data: await fs.readFile(path, 'utf-8')
-    }
+    const data = await this.storage.getItem(path)
+    const stat = await fs.stat(join(this.dir, path))
+    const file = { path, extension, data }
 
     await this.callHook('file:beforeParse', file)
 
@@ -179,7 +155,7 @@ export class Database extends Hookable {
       value = await parser(file.data, { path: file.path })
       value = Array.isArray(value) ? value : [value]
     } catch (err) {
-      logger.warn(`Could not parse ${path.replace(this.srcDir, '.')}:`, err.message)
+      logger.warn(`Could not parse ${path}:`, err.message)
       return []
     }
 
@@ -227,44 +203,29 @@ export class Database extends Hookable {
       extractPath = extractPath.replace(/(?:\.([^.]+))?$/, '')
     }
 
+    if (!extractPath.startsWith('/')) {
+      extractPath = '/' + extractPath
+    }
+
     return extractPath.replace(/\\/g, '/')
   }
 
   watch() {
-    this.watcher = chokidar.watch('**/*', {
-      cwd: this.dir,
-      ignoreInitial: true,
-      ignored: 'node_modules/**/*'
+    this.storage.watch(async (event, key) => {
+      const path = join(this.dir, key)
+
+      if (event == 'remove') {
+        await this.removeFile(key)
+      } else {
+        await this.updateFile(key)
+      }
+
+      this.callHook('file:updated', { event, path })
     })
-    .on('add', path => this.refresh('add', path))
-    .on('change', path => this.refresh('change', path))
-    .on('unlink', path => this.refresh('unlink', path))
-  }
-
-  async refresh(event, path) {
-    const file = join(this.dir, path)
-
-    switch (event) {
-      case 'add':
-        await this.insertFile(file)
-        break
-      case 'change':
-        await this.updateFile(file)
-        break
-      case 'unlink':
-        await this.removeFile(file)
-        break
-    }
-
-    this.callHook('file:updated', { event, path })
   }
 
   async close() {
     this.db = null
-
-    if (this.watcher) {
-      await this.watcher.close()
-      this.watcher = null
-    }
+    await this.storage.dispose()
   }
 }
