@@ -29,10 +29,11 @@
 <script>
 export default defineNuxtComponent({
   async asyncData({ $db }) {
-    const data = await $db()
-      .fetch()
+    const data = await $db().fetch()
 
     return {
+      search: null,
+      model: null,
       data
     }
   },
@@ -45,8 +46,6 @@ export default defineNuxtComponent({
   },
   data() {
     return {
-      search: null,
-      model: null,
       models: [
         'Authors',
         'Posts',
