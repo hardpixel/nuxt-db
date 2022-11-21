@@ -12,6 +12,9 @@ import { Markdown, Yaml, Csv, Xml, Json, Json5 } from './parsers'
 
 const logger = useLogger('nuxt-db')
 
+const isArray = Array.isArray
+const toArray = val => isArray(val) ? val : (val ? [val] : [])
+
 const EXTENSIONS = ['.md', '.json', '.json5', '.yaml', '.yml', '.csv', '.xml']
 
 export class Database extends Hookable {
@@ -76,37 +79,25 @@ export class Database extends Hookable {
   async insertFile(path) {
     const items = await this.parseFile(path)
 
-    for (const item of items) {
+    for (const item of toArray(items)) {
       await this.callHook('file:beforeInsert', item)
       await this.db.insertOne(item)
     }
   }
 
   async updateFile(path) {
+    const npath = this.normalizePath(path)
     const items = await this.parseFile(path)
 
-    if (items.length > 1) {
-      const first = items[0]
-      const saved = await this.db.find({ dir: first.dir }).toArray()
+    await this.db.deleteOne({ path: npath })
 
-      for (const entry of saved) {
-        if (!items.some(item => item.path == entry.path)) {
-          await this.db.deleteOne({ path: entry.path })
-        }
-      }
+    if (isArray(items)) {
+      await this.db.deleteMany({ dir: npath })
     }
 
-    for (const item of items) {
+    for (const item of toArray(items)) {
       await this.callHook('file:beforeInsert', item)
-
-      const query = { path: item.path }
-      const exist = await this.db.count(query)
-
-      if (exist) {
-        await this.db.updateOne(query, item)
-      } else {
-        await this.db.insertOne(item)
-      }
+      await this.db.insertOne(item)
     }
 
     logger.info(`Updated ${path}`)
@@ -129,7 +120,7 @@ export class Database extends Hookable {
     const extension = extname(path)
 
     if (!this.extensions.includes(extension)) {
-      return []
+      return null
     }
 
     const data = await this.storage.getItem(path)
@@ -149,28 +140,32 @@ export class Database extends Hookable {
       ...this.parsers
     })[extension]
 
-    let value = []
+    let value = null
 
     try {
       value = await parser(file.data, { path: file.path })
-      value = Array.isArray(value) ? value : [value]
     } catch (err) {
       logger.warn(`Could not parse ${path}:`, err.message)
-      return []
+      return null
+    }
+
+    if (!value || value == '') {
+      return null
     }
 
     const normalizedPath = this.normalizePath(path)
     const isValidDate = date => date instanceof Date && !isNaN(date)
 
-    return value.map(item => {
+    const parseValue = (item, index) => {
       const paths = normalizedPath.split('/')
 
-      if (value.length > 1 && item.slug) {
-        paths.push(item.slug)
+      if (index != null) {
+        paths.push(item.slug || index + 1)
       }
 
-      const dir  = paths.slice(0, paths.length - 1).join('/') || '/'
-      const slug = paths[paths.length - 1]
+      const last = paths.length - 1
+      const dir  = paths.slice(0, last).join('/') || '/'
+      const slug = paths[last]
       const path = paths.join('/')
 
       if (!this.dirs.includes(dir)) {
@@ -192,7 +187,13 @@ export class Database extends Hookable {
         createdAt,
         updatedAt
       }
-    })
+    }
+
+    if (isArray(value)) {
+      return value.map(parseValue)
+    } else {
+      return parseValue(value)
+    }
   }
 
   normalizePath(path) {
