@@ -1,10 +1,9 @@
 import { fileURLToPath } from 'url'
 import { resolve, join } from 'pathe'
 import { joinURL } from 'ufo'
+import { hash } from 'ohash'
 import { defineNuxtModule, addPlugin, addComponent } from '@nuxt/kit'
 import { Database } from './builder'
-
-import hashSum from 'hash-sum'
 
 export default defineNuxtModule({
   meta: {
@@ -52,7 +51,7 @@ export default defineNuxtModule({
 
     await database.init()
 
-    const dbHash = hashSum(database.db)
+    const dbHash = hash(database.db)
     const dbName = `db-${dbHash}.json`
     const dbUrl  = joinURL(baseURL, dbFolder, dbName)
     const dbPath = resolve(pubDir, dbName)
