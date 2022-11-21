@@ -98,10 +98,6 @@ export class Database extends Hookable {
   async insertFile(path) {
     const items = await this.parseFile(path)
 
-    if (!items) {
-      return
-    }
-
     if (items.length > 1) {
       this.dirs.push(this.normalizePath(path))
     }
@@ -114,10 +110,6 @@ export class Database extends Hookable {
 
   async updateFile(path) {
     const items = await this.parseFile(path)
-
-    if (!items) {
-      return
-    }
 
     if (items.length > 1) {
       const first = items[0]
@@ -163,7 +155,7 @@ export class Database extends Hookable {
     const extension = extname(path)
 
     if (!this.extensions.includes(extension)) {
-      return
+      return []
     }
 
     const stat = await fs.stat(path)
@@ -193,7 +185,7 @@ export class Database extends Hookable {
       data = Array.isArray(data) ? data : [data]
     } catch (err) {
       logger.warn(`Could not parse ${path.replace(this.srcDir, '.')}:`, err.message)
-      return null
+      return []
     }
 
     const normalizedPath = this.normalizePath(path)
