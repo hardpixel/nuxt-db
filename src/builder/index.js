@@ -87,7 +87,6 @@ export class Database extends Hookable {
       }
 
       if (stat.isDirectory()) {
-        this.dirs.push(this.normalizePath(path))
         return this.walk(path)
       } else if (stat.isFile()) {
         return this.insertFile(path)
@@ -97,10 +96,6 @@ export class Database extends Hookable {
 
   async insertFile(path) {
     const items = await this.parseFile(path)
-
-    if (items.length > 1) {
-      this.dirs.push(this.normalizePath(path))
-    }
 
     for (const item of items) {
       await this.callHook('file:beforeInsert', item)
@@ -201,6 +196,10 @@ export class Database extends Hookable {
       const dir  = paths.slice(0, paths.length - 1).join('/') || '/'
       const slug = paths[paths.length - 1]
       const path = paths.join('/')
+
+      if (!this.dirs.includes(dir)) {
+        this.dirs.push(dir)
+      }
 
       const createdTs = item.createdAt && new Date(item.createdAt)
       const createdAt = isValidDate(createdTs) ? createdTs : stat.birthtime
