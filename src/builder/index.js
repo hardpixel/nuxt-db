@@ -168,21 +168,21 @@ export class Database extends Hookable {
     await this.callHook('file:beforeParse', file)
 
     const parser = ({
-      '.json':  data => this.json.toJSON(data),
-      '.json5': data => this.json5.toJSON(data),
-      '.md':    data => this.markdown.toJSON(data),
-      '.csv':   data => this.csv.toJSON(data),
-      '.yaml':  data => this.yaml.toJSON(data),
-      '.yml':   data => this.yaml.toJSON(data),
-      '.xml':   data => this.xml.toJSON(data),
+      '.json':  val => this.json.toJSON(val),
+      '.json5': val => this.json5.toJSON(val),
+      '.md':    val => this.markdown.toJSON(val),
+      '.csv':   val => this.csv.toJSON(val),
+      '.yaml':  val => this.yaml.toJSON(val),
+      '.yml':   val => this.yaml.toJSON(val),
+      '.xml':   val => this.xml.toJSON(val),
       ...this.parsers
     })[extension]
 
-    let data = []
+    let value = []
 
     try {
-      data = await parser(file.data, { path: file.path })
-      data = Array.isArray(data) ? data : [data]
+      value = await parser(file.data, { path: file.path })
+      value = Array.isArray(value) ? value : [value]
     } catch (err) {
       logger.warn(`Could not parse ${path.replace(this.srcDir, '.')}:`, err.message)
       return []
@@ -191,10 +191,10 @@ export class Database extends Hookable {
     const normalizedPath = this.normalizePath(path)
     const isValidDate = date => date instanceof Date && !isNaN(date)
 
-    return data.map(item => {
+    return value.map(item => {
       const paths = normalizedPath.split('/')
 
-      if (data.length > 1 && item.slug) {
+      if (value.length > 1 && item.slug) {
         paths.push(item.slug)
       }
 
