@@ -39,7 +39,7 @@ export default defineNuxtComponent({
   },
   watch: {
     async params() {
-      this.data = await this.$db(this.model)
+      this.data = await useDB(this.model)
         .search(this.search)
         .fetch()
     }
