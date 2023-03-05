@@ -1,7 +1,7 @@
 import { useRuntimeConfig, useNuxtApp } from '#app'
 
 import PicoDB from 'picodb'
-import Fuse from 'fuse.js/dist/fuse.esm'
+import fuzzysort from 'fuzzysort'
 import sortOn from 'sort-on'
 
 let database = null
@@ -116,10 +116,7 @@ class Query {
     let records = await db.find(where).toArray()
 
     if (search && records.length) {
-      const fuse = new Fuse(records, config)
-      const resp = fuse.search(search)
-
-      records = resp.map(({ item, ...$meta }) => ({ ...item, $meta }))
+      records = fuzzysort.go(search, records, config).map(res => res.obj)
     }
 
     if (order.length) {
