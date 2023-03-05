@@ -4,11 +4,12 @@ import PicoDB from 'picodb'
 import Fuse from 'fuse.js/dist/fuse.esm'
 import sortOn from 'sort-on'
 
+let database = null
+
 export const useDB = (...args) => {
   const config  = useRuntimeConfig()
   const nuxtApp = useNuxtApp()
 
-  const dbUrl  = config.db.dbUrl
   const dbDirs = config.db.dbDirs || []
   const query  = new Query()
 
@@ -35,16 +36,12 @@ export const useDB = (...args) => {
   }
 
   const doFetch = async config => {
-    if (!nuxtApp.DB) {
-      nuxtApp.DB = PicoDB()
-
-      if (dbUrl) {
-        const data = await fetch(dbUrl).then(res => res.json())
-        await nuxtApp.DB.insertMany(data)
-      }
+    if (!database) {
+      database = PicoDB()
+      await database.insertMany(await nuxtApp.fetchNuxtDB())
     }
 
-    return await query.resolve(nuxtApp.DB, {
+    return await query.resolve(database, {
       ...options,
       ...config,
       path
