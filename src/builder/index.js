@@ -1,4 +1,4 @@
-import { join, dirname, extname } from 'pathe'
+import { join, extname } from 'pathe'
 import { promises as fs } from 'fs'
 
 import fsDriver from 'unstorage/drivers/fs'
