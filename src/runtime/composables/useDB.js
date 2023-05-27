@@ -1,6 +1,5 @@
 import { useRuntimeConfig, useNuxtApp } from '#app'
 
-import PicoDB from 'picodb'
 import fuzzysort from 'fuzzysort'
 import sortOn from 'sort-on'
 
@@ -37,8 +36,7 @@ export const useDB = (...args) => {
 
   const doFetch = async config => {
     if (!database) {
-      database = PicoDB()
-      await database.insertMany(await nuxtApp.fetchNuxtDB())
+      database = await nuxtApp.fetchNuxtDB()
     }
 
     return await query.resolve(database, {
@@ -108,12 +106,12 @@ class Query {
     return this
   }
 
-  async resolve(db, options) {
+  async resolve(data, options) {
     if (options.find) { this.limit(1) }
 
     const { where, order, limit, skip, search, only, without, config } = this.query
 
-    let records = await db.find(where).toArray()
+    let records = data.filter(compile(where))
 
     if (search && records.length) {
       records = fuzzysort.go(search, records, config).map(res => res.obj)
@@ -157,4 +155,91 @@ class Query {
 
     return records
   }
+}
+
+const type = e => Object.prototype.toString.call(e).replace(/^\[object\s(.*)\]$/, '$1')
+const keys = Object.keys
+
+const isArray = Array.isArray
+const isString = v => typeof v === 'string'
+const isFunction = v => typeof v === 'function'
+const isObject = v => type(v) === 'Object'
+
+const equals = (x, e) => {
+  if (e === x) return true
+
+  if (isArray(e) && isArray(x)) {
+    const length = e.length
+
+    if (length !== x.length) return false
+
+    for (let i = 0; i < length; i++) {
+      if (!equals(x[i], e[i])) return false
+    }
+
+    return true
+  }
+
+  if (isObject(e) && isObject(x)) {
+    const obkeys = keys(e)
+    const length = obkeys.length
+
+    if (length !== keys(x).length) return false
+
+    for (let i = 0; i < length; i++) {
+      if (!equals(x[obkeys[i]], e[obkeys[i]])) return false
+    }
+
+    return true
+  }
+
+  return e !== e && x !== x
+}
+
+const operations = {
+  $eq:         (f, v) => equals(v, f),
+  $ne:         (f, v) => !equals(v, f),
+  $gt:         (f, v) => v > f,
+  $gte:        (f, v) => v >= f,
+  $lt:         (f, v) => v < f,
+  $lte:        (f, v) => v <= f,
+  $between:    (f, v) => v >= f[0] && v <= f[1],
+  $regex:      (f, v) => isString(v) && v.test(f),
+  $in:         (f, v) => f.includes(v),
+  $nin:        (f, v) => !f.includes(v),
+  $not:        (f, v) => !compile(f)(v),
+  $and:        (f, v) => f.every(c => compile(c)(v)),
+  $or:         (f, v) => f.some(c => compile(c)(v)),
+  $exists:     (f, v) => f ? v !== undefined : v === undefined,
+  $size:       (f, v) => (isArray(v) || isString(v)) && v.length === f,
+  $all:        (f, v) => isArray(v) && f.every(i => v.includes(i)),
+  $elemMatch:  (f, v) => isArray(v) && v.some(compile(f)),
+  $startsWith: (f, v) => isString(v) && v.startsWith(f),
+  $endsWith:   (f, v) => isString(v) && v.endsWith(f)
+}
+
+const compile = (filter, ctx) => {
+  if (ctx && operations[ctx]) {
+    return value => operations[ctx](filter, value)
+  }
+
+  if (isFunction(filter)) {
+    return value => filter(value)
+  }
+
+  if (isObject(filter)) {
+    const compiled = keys(filter).reduce((result, prop) => {
+      result[prop] = compile(filter[prop], prop)
+      return result
+    }, {})
+
+    return value => keys(compiled).every(prop => {
+      if (!prop.startsWith('$') && value === undefined) {
+        return false
+      }
+      return compiled[prop](prop.startsWith('$') ? value : value[prop])
+    })
+  }
+
+  return value => equals(value, filter)
 }
