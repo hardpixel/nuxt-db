@@ -1,8 +1,8 @@
 import { join, extname } from 'pathe'
 import { promises as fs } from 'fs'
+import { mkdirp } from 'mkdirp'
 
 import fsDriver from 'unstorage/drivers/fs'
-import mkdirp from 'mkdirp'
 import PicoDB from 'picodb'
 
 import { useLogger } from '@nuxt/kit'

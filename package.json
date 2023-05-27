@@ -29,24 +29,24 @@
     "destr": "^1.2.2",
     "fuzzysort": "^2.0.4",
     "gray-matter": "^4.0.3",
-    "hookable": "^5.5.1",
+    "hookable": "^5.5.3",
     "js-yaml": "^4.1.0",
     "json5": "^2.2.3",
     "markdown-it": "^13.0.1",
-    "mkdirp": "^2.1.6",
-    "ohash": "^1.0.0",
+    "mkdirp": "^3.0.1",
+    "ohash": "^1.1.2",
     "pathe": "^1.1.0",
-    "picodb": "^1.0.4",
+    "picodb": "^1.0.5",
     "sort-on": "^5.2.0",
-    "ufo": "^1.1.1",
-    "unstorage": "^1.4.1",
-    "xml2js": "^0.4.23"
+    "ufo": "^1.1.2",
+    "unstorage": "^1.6.1",
+    "xml2js": "^0.6.0"
   },
   "devDependencies": {
     "@nuxt/module-builder": "0.2.1",
     "@nuxt/schema": "^3.0.0",
     "@nuxtjs/eslint-config": "^12.0.0",
-    "eslint": "^8.36.0",
+    "eslint": "^8.41.0",
     "nuxt": "^3.0.0"
   }
 }
