@@ -10,7 +10,7 @@ export const useDB = (...args) => {
   const config  = useRuntimeConfig()
   const nuxtApp = useNuxtApp()
 
-  const dbDirs = config.db.dbDirs || []
+  const dbDirs = config.public.db.dbDirs || []
   const query  = new Query()
 
   let options = {}
