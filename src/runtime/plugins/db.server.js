@@ -1,6 +1,6 @@
 import { readFile } from 'fs/promises'
 import { defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { useDB } from '../composables/useDB'
+import { useDB } from '#imports'
 
 export default defineNuxtPlugin(async nuxtApp => {
   const config = useRuntimeConfig()
