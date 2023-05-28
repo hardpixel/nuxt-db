@@ -1,6 +1,5 @@
 import { join, extname } from 'pathe'
 import { promises as fs } from 'fs'
-import { mkdirp } from 'mkdirp'
 
 import fsDriver from 'unstorage/drivers/fs'
 import PicoDB from 'picodb'
@@ -72,7 +71,7 @@ export class Database extends Hookable {
     const data = await this.db.find({}).toArray()
     const json = JSON.stringify(data)
 
-    await mkdirp(dir)
+    await fs.mkdir(dir, { recursive: true })
     await fs.writeFile(path, json, 'utf-8')
   }
 
