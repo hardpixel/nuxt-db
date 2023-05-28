@@ -27,6 +27,9 @@ export default defineNuxtModule({
     const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
     nuxt.options.build.transpile.push(runtimeDir, 'nuxt-db')
 
+    nuxt.options.vite.optimizeDeps.include ||= []
+    nuxt.options.vite.optimizeDeps.include.push('fuzzysort')
+
     const isDev    = nuxt.options.dev
     const srcDir   = nuxt.options.srcDir
     const pubPath  = nuxt.options.app.buildAssetsDir
