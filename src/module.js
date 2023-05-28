@@ -30,7 +30,7 @@ export default defineNuxtModule({
     const isDev    = nuxt.options.dev
     const srcDir   = nuxt.options.srcDir
     const pubPath  = nuxt.options.app.buildAssetsDir
-    const baseURL  = nuxt.options.router.base
+    const baseURL  = nuxt.options.app.baseURL
 
     const dbFolder = join('.', pubPath, 'database')
     const buildDir = resolve(nuxt.options.buildDir, dbFolder)
