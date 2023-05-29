@@ -2,8 +2,8 @@ import { fileURLToPath } from 'url'
 import { resolve, join } from 'pathe'
 import { joinURL } from 'ufo'
 import { hash } from 'ohash'
-import { defineNuxtModule, extendViteConfig } from '@nuxt/kit'
-import { addPlugin, addImports, addComponent } from '@nuxt/kit'
+import { defineNuxtModule, extendViteConfig, updateTemplates } from '@nuxt/kit'
+import { addPlugin, addImports, addComponent, addTemplate } from '@nuxt/kit'
 import { Database } from './builder'
 
 export default defineNuxtModule({
@@ -60,10 +60,9 @@ export default defineNuxtModule({
     const dbName = `db-${dbHash}.json`
     const dbUrl  = joinURL(baseURL, dbFolder, dbName)
     const dbPath = resolve(pubDir, dbName)
-    const dbDirs = database.dirs
 
-    nuxt.options.runtimeConfig.db = { dbPath, dbDirs }
-    nuxt.options.runtimeConfig.public.db = { dbUrl, dbDirs }
+    nuxt.options.runtimeConfig.db = { dbPath }
+    nuxt.options.runtimeConfig.public.db = { dbUrl }
 
     addPlugin(resolve(runtimeDir, 'plugins', 'db.server'))
     addPlugin(resolve(runtimeDir, 'plugins', 'db.client'))
@@ -78,8 +77,17 @@ export default defineNuxtModule({
       from: resolve(runtimeDir, 'composables', 'useDB')
     })
 
+    addTemplate({
+      filename: 'nuxtdb-options.mjs',
+      write: true,
+      getContents() {
+        return `export const dbDirs = ${JSON.stringify(database.dirs)}`
+      }
+    })
+
     nuxt.hook('database:file:updated', async () => {
       await database.save(pubDir, dbName)
+      await updateTemplates({ filter: temp => /^nuxtdb-/.test(temp.filename) })
     })
 
     nuxt.hook('build:done', async () => {

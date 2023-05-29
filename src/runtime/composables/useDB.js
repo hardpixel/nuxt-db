@@ -1,18 +1,17 @@
-import { useRuntimeConfig, useNuxtApp } from '#app'
+import { useNuxtApp } from '#app'
 
 import fuzzysort from 'fuzzysort'
 import sortOn from 'sort-on'
 
-let database = null
+let database = []
 
 export const useDB = (...args) => {
-  const config  = useRuntimeConfig()
   const nuxtApp = useNuxtApp()
-
-  const dbDirs = config.public.db.dbDirs || []
-  const query  = new Query()
+  const nuxtDB  = nuxtApp['_nuxtDB']
 
   let options = {}
+
+  const query = new Query()
   const paths = []
 
   args.forEach(arg => {
@@ -24,7 +23,7 @@ export const useDB = (...args) => {
   })
 
   const path = `/${paths.join('/')}`.replace(/\/+/g, '/')
-  const many = dbDirs.some(dir => dir === path)
+  const many = nuxtDB.dirs.some(dir => dir === path)
 
   if (paths.length) {
     if (many) {
@@ -35,8 +34,8 @@ export const useDB = (...args) => {
   }
 
   const doFetch = async config => {
-    if (!database) {
-      database = await nuxtApp.fetchNuxtDB()
+    if (!nuxtDB.fetchAt) {
+      database = await nuxtDB.fetch()
     }
 
     return await query.resolve(database, {
