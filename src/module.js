@@ -2,7 +2,8 @@ import { fileURLToPath } from 'url'
 import { resolve, join } from 'pathe'
 import { joinURL } from 'ufo'
 import { hash } from 'ohash'
-import { defineNuxtModule, addPlugin, addComponent } from '@nuxt/kit'
+import { defineNuxtModule, extendViteConfig } from '@nuxt/kit'
+import { addPlugin, addImports, addComponent } from '@nuxt/kit'
 import { Database } from './builder'
 
 export default defineNuxtModule({
@@ -27,8 +28,9 @@ export default defineNuxtModule({
     const runtimeDir = fileURLToPath(new URL('./runtime', import.meta.url))
     nuxt.options.build.transpile.push(runtimeDir, 'nuxt-db')
 
-    nuxt.options.vite.optimizeDeps.include ||= []
-    nuxt.options.vite.optimizeDeps.include.push('fuzzysort')
+    extendViteConfig(config => {
+      config.optimizeDeps.include.push('fuzzysort')
+    })
 
     const isDev    = nuxt.options.dev
     const srcDir   = nuxt.options.srcDir
@@ -71,8 +73,9 @@ export default defineNuxtModule({
       filePath: resolve(runtimeDir, 'components', 'NuxtContent.vue')
     })
 
-    nuxt.hook('imports:dirs', (dirs) => {
-      dirs.push(resolve(runtimeDir, 'composables'))
+    addImports({
+      name: 'useDB',
+      from: resolve(runtimeDir, 'composables', 'useDB')
     })
 
     nuxt.hook('database:file:updated', async () => {
