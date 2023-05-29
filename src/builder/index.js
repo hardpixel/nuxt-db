@@ -21,6 +21,7 @@ export class Database extends Hookable {
     super()
 
     this.db         = PicoDB()
+    this.dirs       = ['/']
     this.srcDir     = options.srcDir
     this.buildDir   = options.buildDir
     this.dir        = join(options.srcDir, options.dir)
@@ -46,8 +47,7 @@ export class Database extends Hookable {
   async init() {
     const startTime = process.hrtime()
 
-    this.db   = PicoDB()
-    this.dirs = ['/']
+    this.db = PicoDB()
 
     const keys = await this.storage.getKeys()
 
@@ -59,6 +59,8 @@ export class Database extends Hookable {
 
     const count = keys.length
     const timer = Math.round(ns / 1e8)
+
+    await this.updateDirs()
 
     logger.info(`Parsed ${count} files in ${s}.${timer} seconds`)
   }
@@ -99,6 +101,8 @@ export class Database extends Hookable {
       await this.db.insertOne(item)
     }
 
+    await this.updateDirs()
+
     logger.info(`Updated ${path}`)
   }
 
@@ -111,6 +115,8 @@ export class Database extends Hookable {
     } else {
       await this.db.deleteMany({ dir: npath })
     }
+
+    await this.updateDirs()
 
     logger.info(`Removed ${path}`)
   }
@@ -167,10 +173,6 @@ export class Database extends Hookable {
       const slug = paths[last]
       const path = paths.join('/')
 
-      if (!this.dirs.includes(dir)) {
-        this.dirs.push(dir)
-      }
-
       const createdTs = item.createdAt && new Date(item.createdAt)
       const createdAt = isValidDate(createdTs) ? createdTs : stat.birthtime
 
@@ -193,6 +195,11 @@ export class Database extends Hookable {
     } else {
       return parseValue(value)
     }
+  }
+
+  async updateDirs() {
+    const all = await this.db.find({}).toArray()
+    this.dirs = ['/', ...(new Set(all.map(item => item.dir)))]
   }
 
   normalizePath(path) {
