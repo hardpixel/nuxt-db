@@ -3,7 +3,7 @@ import { useNuxtApp } from '#app'
 import fuzzysort from 'fuzzysort'
 import sortOn from 'sort-on'
 
-let database = []
+let database = null
 
 export const useDB = (...args) => {
   const nuxtApp = useNuxtApp()
@@ -34,7 +34,7 @@ export const useDB = (...args) => {
   }
 
   const doFetch = async config => {
-    if (!nuxtDB.fetchAt) {
+    if (!database || !nuxtDB.fetchAt) {
       database = await nuxtDB.fetch()
     }
 
