@@ -6,6 +6,6 @@ export default class Json {
   }
 
   toJSON(file) {
-    return destr(file, this.options)
+    return destr(file, { ...this.options, strict: true })
   }
 }

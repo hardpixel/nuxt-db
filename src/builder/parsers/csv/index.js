@@ -6,7 +6,7 @@ export default class Csv {
   }
 
   async toJSON (file) {
-    const body = await csv({ output: 'json', ...this.options }).fromString(file)
+    const body = await csv({ ...this.options, output: 'json' }).fromString(file)
 
     return {
       body
