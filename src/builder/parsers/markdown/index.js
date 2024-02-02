@@ -2,7 +2,7 @@ import MarkdownIt from 'markdown-it'
 import matter from 'gray-matter'
 import { DOMParser } from '@xmldom/xmldom'
 
-import JSON5 from 'json5'
+import YAML from 'js-yaml'
 import htmlTags from 'html-tags'
 import voidHtmlTags from 'html-tags/void.js'
 
@@ -70,7 +70,7 @@ const nodeToVnode = (node, env) => {
       const attribute = node.attributes[i]
 
       try {
-        attributes[attribute.name] = JSON5.parse(attribute.value)
+        attributes[attribute.name] = YAML.load(attribute.value)
       } catch (e) {
         attributes[attribute.name] = attribute.value
       }
