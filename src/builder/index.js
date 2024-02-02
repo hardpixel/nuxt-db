@@ -35,6 +35,7 @@ export class Database extends Hookable {
     this.json       = new Json(options.json)
     this.json5      = new Json5(options.json5)
 
+    this.omitKeys   = ['_id']
     this.parsers    = options.extendParser || {}
     this.extensions = EXTENSIONS.concat(Object.keys(this.parsers))
     this.options    = options
@@ -71,7 +72,8 @@ export class Database extends Hookable {
 
     const path = join(dir, filename)
     const data = await this.db.find({}).toArray()
-    const json = JSON.stringify(data)
+    const omit = (key, val) => this.omitKeys.includes(key) ? undefined : val
+    const json = JSON.stringify(data, omit)
 
     await fs.mkdir(dir, { recursive: true })
     await fs.writeFile(path, json, 'utf-8')
