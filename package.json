@@ -20,6 +20,7 @@
     "build": "nuxt-module-build",
     "dev": "nuxi dev example",
     "dev:build": "nuxi build example",
+    "dev:generate": "nuxi generate example",
     "dev:preview": "nuxi preview example",
     "dev:prepare": "nuxt-module-build --stub && nuxi prepare example"
   },
