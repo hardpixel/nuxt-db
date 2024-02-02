@@ -56,7 +56,7 @@ export default defineNuxtModule({
 
     await database.init()
 
-    const dbHash = hash(database.db)
+    const dbHash = hash(await database.toJSON())
     const dbName = `db-${dbHash}.json`
     const dbUrl  = joinURL(baseURL, dbFolder, dbName)
     const dbPath = resolve(pubDir, dbName)

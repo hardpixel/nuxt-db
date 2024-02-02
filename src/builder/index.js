@@ -45,6 +45,14 @@ export class Database extends Hookable {
     }
   }
 
+  async toJSON() {
+    const omit = (key, val) => this.omitKeys.includes(key) ? undefined : val
+    const sort = (a, b) => a.path.localeCompare(b.path)
+    const data = (await this.db.find({}).toArray()).sort(sort)
+
+    return JSON.stringify(data, omit)
+  }
+
   async init() {
     const startTime = process.hrtime()
 
@@ -71,9 +79,7 @@ export class Database extends Hookable {
     filename = filename || this.name
 
     const path = join(dir, filename)
-    const data = await this.db.find({}).toArray()
-    const omit = (key, val) => this.omitKeys.includes(key) ? undefined : val
-    const json = JSON.stringify(data, omit)
+    const json = await this.toJSON()
 
     await fs.mkdir(dir, { recursive: true })
     await fs.writeFile(path, json, 'utf-8')
