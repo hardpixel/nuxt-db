@@ -47,8 +47,7 @@ export class Database extends Hookable {
 
   async toJSON() {
     const omit = (key, val) => this.omitKeys.includes(key) ? undefined : val
-    const sort = (a, b) => a.path.localeCompare(b.path)
-    const data = (await this.db.find({}).toArray()).sort(sort)
+    const data = await this.db.find({}).toArray()
 
     return JSON.stringify(data, omit)
   }
