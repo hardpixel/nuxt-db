@@ -1,7 +1,6 @@
 import { fileURLToPath } from 'url'
 import { resolve, join } from 'pathe'
 import { joinURL } from 'ufo'
-import { hash } from 'ohash'
 import { defineNuxtModule, extendViteConfig, updateTemplates } from '@nuxt/kit'
 import { addPlugin, addImports, addComponent, addTemplate } from '@nuxt/kit'
 import { Database } from './builder'
@@ -56,7 +55,7 @@ export default defineNuxtModule({
 
     await database.init()
 
-    const dbHash = hash(await database.toJSON())
+    const dbHash = await database.toHash()
     const dbName = `db-${dbHash}.json`
     const dbUrl  = joinURL(baseURL, dbFolder, dbName)
     const dbPath = resolve(pubDir, dbName)

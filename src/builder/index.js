@@ -1,4 +1,5 @@
 import { join, extname } from 'pathe'
+import { hash } from 'ohash'
 import { promises as fs } from 'fs'
 
 import fsDriver from 'unstorage/drivers/fs'
@@ -50,6 +51,16 @@ export class Database extends Hookable {
     const data = await this.db.find({}).toArray()
 
     return JSON.stringify(data, omit)
+  }
+
+  async toHash() {
+    const keys = ['createdAt', 'updatedAt', ...this.omitKeys]
+    const omit = (key, val) => keys.includes(key) ? undefined : val
+
+    const sort = (a, b) => a.path.localeCompare(b.path)
+    const data = (await this.db.find({}).toArray()).sort(sort)
+
+    return hash(JSON.stringify(data, omit))
   }
 
   async init() {
