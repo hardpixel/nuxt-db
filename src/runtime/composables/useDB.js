@@ -62,6 +62,7 @@ class Query {
       limit: null,
       skip: null,
       search: null,
+      surround: null,
       config: null
     }
   }
@@ -105,10 +106,18 @@ class Query {
     return this
   }
 
+  surround(slugOrPath, options) {
+    const opts = { before: 1, after: 1, ...options }
+    const path = `/${slugOrPath}`.replace(/\/+/g, '/')
+
+    this.query.surround = { ...opts, path, slug: slugOrPath }
+    return this
+  }
+
   async resolve(data, options) {
     if (options.find) { this.limit(1) }
 
-    const { where, order, limit, skip, search, only, without, config } = this.query
+    const { where, order, limit, skip, search, surround, only, without, config } = this.query
 
     let records = data.filter(compile(where))
 
@@ -118,6 +127,24 @@ class Query {
 
     if (order.length) {
       records = sortOn(records, order)
+    }
+
+    if (surround) {
+      const index = records.findIndex(
+        item => item.slug === surround.slug || item.path === surround.path
+      )
+
+      const items = []
+
+      for (let i = 1; i <= surround.before; i++) {
+        items.push(records[index - i])
+      }
+
+      for (let i = 1; i <= surround.after; i++) {
+        items.push(records[index + i])
+      }
+
+      records = items
     }
 
     if (skip) {
