@@ -121,7 +121,7 @@ class Query {
 
     let records = data.filter(compile(where))
 
-    if (search && records.length) {
+    if (!surround && search && records.length) {
       records = fuzzysort.go(search, records, config).map(res => res.obj)
     }
 
@@ -147,11 +147,11 @@ class Query {
       records = items
     }
 
-    if (skip) {
+    if (!surround && skip) {
       records = records.slice(skip)
     }
 
-    if (limit) {
+    if (!surround && limit) {
       records = records.slice(0, limit)
     }
 
