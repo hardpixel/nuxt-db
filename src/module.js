@@ -28,6 +28,7 @@ export default defineNuxtModule({
     nuxt.options.build.transpile.push(runtimeDir, 'nuxt-db')
 
     extendViteConfig(config => {
+      config.optimizeDeps.include ||= []
       config.optimizeDeps.include.push('fuzzysort')
     })
 
