@@ -1,6 +1,6 @@
 {
   "name": "nuxt-db",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "JSON database module for Nuxt",
   "repository": "https://github.com/hardpixel/nuxt-db",
   "author": "Jonian Guveli",
