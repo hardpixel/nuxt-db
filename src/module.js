@@ -34,12 +34,11 @@ export default defineNuxtModule({
 
     const isDev    = nuxt.options.dev
     const srcDir   = nuxt.options.srcDir
-    const pubPath  = nuxt.options.app.buildAssetsDir
     const baseURL  = nuxt.options.app.baseURL
 
-    const dbFolder = join('.', pubPath, 'database')
-    const buildDir = resolve(nuxt.options.buildDir, dbFolder)
-    const pubDir   = resolve(nuxt.options.buildDir, 'dist', 'client', dbFolder)
+    const dbFolder = join('.', '_database')
+    const baseDir  = resolve(nuxt.options.buildDir, 'nuxt-db')
+    const buildDir = resolve(baseDir, dbFolder)
     const database = new Database({ ...options, isDev, srcDir, buildDir })
 
     database.hook('file:beforeInsert', item => {
@@ -59,7 +58,7 @@ export default defineNuxtModule({
     const dbHash = await database.toHash()
     const dbName = `db-${dbHash}.json`
     const dbUrl  = joinURL(baseURL, dbFolder, dbName)
-    const dbPath = resolve(pubDir, dbName)
+    const dbPath = resolve(baseDir, dbFolder, dbName)
 
     nuxt.options.runtimeConfig.db = { dbPath }
     nuxt.options.runtimeConfig.public.db = { dbUrl }
@@ -86,19 +85,22 @@ export default defineNuxtModule({
     })
 
     nuxt.hook('database:file:updated', async () => {
-      await database.save(pubDir, dbName)
+      await database.save(buildDir, dbName)
       await updateTemplates({ filter: temp => /^nuxtdb-/.test(temp.filename) })
     })
 
     nuxt.hook('build:done', async () => {
-      await database.save(pubDir, dbName)
+      await database.save(buildDir, dbName)
     })
 
-    nuxt.hook('nitro:generate', async ctx => {
-      const dbPath = join(ctx.output.publicDir, dbFolder, dbName)
-      nuxt.options.runtimeConfig.db.dbPath = dbPath
+    nuxt.hook('nitro:config', async nitroConfig => {
+      nitroConfig.publicAssets ||= []
+      nitroConfig.publicAssets.push({ dir: baseDir })
+    })
 
-      await database.save(pubDir, dbName)
+    nuxt.hook('nitro:build:before', async ctx => {
+      const dbPath = join(ctx.options.output.publicDir, dbFolder, dbName)
+      nuxt.options.runtimeConfig.db.dbPath = dbPath
     })
 
     nuxt.hook('close', async () => {
