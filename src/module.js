@@ -99,7 +99,7 @@ export default defineNuxtModule({
     })
 
     nuxt.hook('nitro:build:before', async ctx => {
-      const dbPath = join(ctx.options.output.publicDir, dbFolder, dbName)
+      const dbPath = join(dbFolder, dbName)
       nuxt.options.runtimeConfig.db.dbPath = dbPath
     })
 
