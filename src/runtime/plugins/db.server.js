@@ -12,7 +12,12 @@ export default defineNuxtPlugin(async nuxtApp => {
     fetchAt: null,
     async fetch() {
       this.fetchAt = Date.now()
-      return dbPath ? JSON.parse(await readFile(dbPath, 'utf8')) : []
+      try {
+        return JSON.parse(await readFile(dbPath, 'utf8'))
+      } catch (e) {
+        console.error(e)
+        return []
+      }
     }
   }
 
