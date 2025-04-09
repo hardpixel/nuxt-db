@@ -10,7 +10,7 @@ const isHtmlTag = tag => htmlTags.includes(tag) || voidHtmlTags.includes(tag)
 
 const htmlToText = html => {
   const dom = new DOMParser()
-  const doc = dom.parseFromString(`<!DOCTYPE html><html><body>${html}</body></html>`)
+  const doc = dom.parseFromString(`<!DOCTYPE html><html><body>${html}</body></html>`, 'text/html')
 
   return nodeToText(doc.documentElement)
 }
@@ -34,7 +34,7 @@ const nodeToText = (node) => {
 
 const htmlToVnode = html => {
   const dom = new DOMParser()
-  const doc = dom.parseFromString(`<!DOCTYPE html><html><body>${html}</body></html>`)
+  const doc = dom.parseFromString(`<!DOCTYPE html><html><body>${html}</body></html>`, 'text/html')
 
   const env = { tags: [] }
   const arr = nodeToVnode(doc.documentElement, env)

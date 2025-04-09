@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "@nuxt/kit": "^3.0.0",
-    "@xmldom/xmldom": "^0.8.7",
+    "@xmldom/xmldom": "^0.9.8",
     "csvtojson": "^2.0.10",
     "destr": "^1.2.2",
     "fuzzysort": "^2.0.4",
