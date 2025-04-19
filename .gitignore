@@ -11,3 +11,5 @@ sw.js
 .output
 .env
 .history
+.netlify
+.vercel

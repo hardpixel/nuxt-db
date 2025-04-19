@@ -22,6 +22,7 @@
     "dev:build": "nuxi build example",
     "dev:generate": "nuxi generate example",
     "dev:preview": "nuxi preview example",
+    "dev:cleanup": "nuxi cleanup example",
     "dev:prepare": "nuxt-module-build --stub && nuxi prepare example"
   },
   "dependencies": {
