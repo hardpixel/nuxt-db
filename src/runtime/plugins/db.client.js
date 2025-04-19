@@ -1,11 +1,8 @@
-import { defineNuxtPlugin, useRuntimeConfig } from '#app'
-import { dbDirs } from '#build/nuxtdb-options'
+import { defineNuxtPlugin } from '#app'
+import { dbUrl, dbDirs } from '#build/nuxtdb-options'
 import { useDB } from '#imports'
 
 export default defineNuxtPlugin(async nuxtApp => {
-  const config = useRuntimeConfig()
-  const dbUrl  = config.public.db.dbUrl
-
   nuxtApp._nuxtDB = {
     dirs: dbDirs,
     fetchAt: null,

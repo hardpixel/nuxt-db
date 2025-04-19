@@ -59,9 +59,7 @@ export default defineNuxtModule({
     const dbName = `db-${dbHash}.json`
     const dbUrl  = joinURL(baseURL, dbFolder, dbName)
     const dbPath = resolve(baseDir, dbFolder, dbName)
-
-    nuxt.options.runtimeConfig.db = { dbPath }
-    nuxt.options.runtimeConfig.public.db = { dbUrl }
+    const config = { dbPath, dbUrl }
 
     addPlugin(resolve(runtimeDir, 'plugins', 'db.server'))
     addPlugin(resolve(runtimeDir, 'plugins', 'db.client'))
@@ -80,7 +78,9 @@ export default defineNuxtModule({
       filename: 'nuxtdb-options.mjs',
       write: true,
       getContents() {
-        return `export const dbDirs = ${JSON.stringify(database.dirs)}`
+        return Object.entries({ ...config, dbDirs: database.dirs })
+          .map(([key, val]) => `export const ${key} = ${JSON.stringify(val)}`)
+          .join('\n')
       }
     })
 
@@ -96,11 +96,6 @@ export default defineNuxtModule({
     nuxt.hook('nitro:config', async nitroConfig => {
       nitroConfig.publicAssets ||= []
       nitroConfig.publicAssets.push({ dir: baseDir })
-    })
-
-    nuxt.hook('nitro:build:before', async ctx => {
-      const dbPath = join(dbFolder, dbName)
-      nuxt.options.runtimeConfig.db.dbPath = dbPath
     })
 
     nuxt.hook('close', async () => {
