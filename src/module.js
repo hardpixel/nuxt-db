@@ -58,8 +58,7 @@ export default defineNuxtModule({
     const dbHash = isDev ? 'content' : await database.toHash()
     const dbName = `db-${dbHash}.json`
     const dbUrl  = joinURL(baseURL, dbFolder, dbName)
-    const dbPath = resolve(baseDir, dbFolder, dbName)
-    const config = { dbPath, dbUrl }
+    const config = { dbName, dbUrl }
 
     addPlugin(resolve(runtimeDir, 'plugins', 'db.server'))
     addPlugin(resolve(runtimeDir, 'plugins', 'db.client'))
@@ -96,6 +95,12 @@ export default defineNuxtModule({
     nuxt.hook('nitro:config', async nitroConfig => {
       nitroConfig.publicAssets ||= []
       nitroConfig.publicAssets.push({ dir: baseDir })
+
+      nitroConfig.serverAssets ||= []
+      nitroConfig.serverAssets.push({
+        baseName: 'nuxt-db',
+        dir: buildDir
+      })
     })
 
     nuxt.hook('close', async () => {

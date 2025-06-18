@@ -1,6 +1,6 @@
-import { readFile } from 'fs/promises'
+import { useStorage } from 'nitropack/runtime/storage'
 import { defineNuxtPlugin } from '#app'
-import { dbPath, dbDirs } from '#build/nuxtdb-options'
+import { dbName, dbDirs } from '#build/nuxtdb-options'
 import { useDB } from '#imports'
 
 export default defineNuxtPlugin(async nuxtApp => {
@@ -10,7 +10,8 @@ export default defineNuxtPlugin(async nuxtApp => {
     async fetch() {
       this.fetchAt = Date.now()
       try {
-        return JSON.parse(await readFile(dbPath, 'utf8'))
+        const storage = useStorage('assets:nuxt-db')
+        return await storage.getItem(dbName)
       } catch (e) {
         console.error(e)
         return []
