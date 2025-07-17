@@ -26,7 +26,7 @@
     "dev:prepare": "nuxt-module-build --stub && nuxi prepare example"
   },
   "dependencies": {
-    "@nuxt/kit": "^3.0.0",
+    "@nuxt/kit": "^3.16.0",
     "@xmldom/xmldom": "^0.9.8",
     "csvtojson": "^2.0.10",
     "destr": "^1.2.2",
@@ -47,9 +47,9 @@
   },
   "devDependencies": {
     "@nuxt/module-builder": "0.2.1",
-    "@nuxt/schema": "^3.0.0",
+    "@nuxt/schema": "^3.16.0",
     "@nuxtjs/eslint-config": "^12.0.0",
     "eslint": "^8.41.0",
-    "nuxt": "^3.0.0"
+    "nuxt": "^3.16.0"
   }
 }
