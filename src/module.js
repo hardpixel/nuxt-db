@@ -10,7 +10,7 @@ export default defineNuxtModule({
     name: 'nuxt-db',
     configKey: 'database',
     compatibility: {
-      nuxt: '^3.0.0'
+      nuxt: '^3.16.0'
     }
   },
   defaults: {
