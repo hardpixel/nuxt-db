@@ -119,7 +119,7 @@ class Query {
 
     const { where, order, limit, skip, search, surround, only, without, config } = this.query
 
-    let records = data.filter(compile(where))
+    let records = (data ?? []).filter(compile(where))
 
     if (!surround && search && records.length) {
       records = fuzzysort.go(search, records, config).map(res => res.obj)
