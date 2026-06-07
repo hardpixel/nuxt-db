@@ -3,17 +3,14 @@ import { resolve, join } from 'pathe'
 import { joinURL } from 'ufo'
 import { defineNuxtModule, extendViteConfig, updateTemplates } from '@nuxt/kit'
 import { addPlugin, addImports, addComponent, addTemplate } from '@nuxt/kit'
-import { useLogger, getNuxtVersion } from '@nuxt/kit'
 import { Database } from './builder'
-
-const logger = useLogger('nuxt-db')
 
 export default defineNuxtModule({
   meta: {
     name: 'nuxt-db',
     configKey: 'database',
     compatibility: {
-      nuxt: '^3.16.0'
+      nuxt: '^3.17.0'
     }
   },
   defaults: {
@@ -34,20 +31,6 @@ export default defineNuxtModule({
       config.optimizeDeps.include ||= []
       config.optimizeDeps.include.push('fuzzysort')
     })
-
-    if (nuxt.options.dev) {
-      try {
-        const matches = getNuxtVersion(nuxt).match(/^(\d+\.\d+)/)
-        const version = Number(matches[0].replace('.', ''))
-
-        if (version < 317) {
-          logger.info('Adding nitropack to build.transpile')
-          nuxt.options.build.transpile.push('nitropack')
-        }
-      } catch (error) {
-        logger.info('Checking nuxt version failed:', error.message)
-      }
-    }
 
     const isDev    = nuxt.options.dev
     const srcDir   = nuxt.options.srcDir
