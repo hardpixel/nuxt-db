@@ -4,7 +4,7 @@ import { DOMParser } from '@xmldom/xmldom'
 
 import YAML from 'js-yaml'
 import htmlTags from 'html-tags'
-import voidHtmlTags from 'html-tags/void.js'
+import { voidHtmlTags } from 'html-tags'
 
 const isHtmlTag = tag => htmlTags.includes(tag) || voidHtmlTags.includes(tag)
 

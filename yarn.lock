@@ -4585,10 +4585,10 @@ hosted-git-info@^7.0.0:
   dependencies:
     lru-cache "^10.0.1"
 
-html-tags@^3.3.1:
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/html-tags/-/html-tags-3.3.1.tgz#a04026a18c882e4bba8a01a3d39cfe465d40b5ce"
-  integrity sha512-ztqyC3kLto0e9WbNp0aeP+M3kTt+nbaIveGmUxAtZa+8iFgKLUOD4YKM5j+f3QD89bra7UeumolZHKuOXnTmeQ==
+html-tags@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/html-tags/-/html-tags-4.0.0.tgz#5c170da17c776157b2c02b8f392d66589aa67fb5"
+  integrity sha512-KM1SNmemQtsD+OTInZTYKZNbyPzzVrjMR2Iz1Np+Y+bcxUh0dgKF4NtylJVkGZRLe3NklHizJ5k1Vd3ug1uTPA==
 
 http-errors@^2.0.0:
   version "2.0.0"
