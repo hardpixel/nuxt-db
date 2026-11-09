@@ -7,10 +7,17 @@ export default defineNuxtPlugin(async nuxtApp => {
     dirs: dbDirs,
     fetchAt: null,
     async fetch() {
-      this.fetchAt = Date.now()
       try {
-        return await import('#build/nuxtdb-database').then(res => res.data)
+        const { data } = await import('#build/nuxtdb-database')
+
+        if (!Array.isArray(data)) {
+          throw new Error('Invalid database format')
+        }
+
+        this.fetchAt = Date.now()
+        return data
       } catch (e) {
+        this.fetchAt = null
         console.error(e)
         return []
       }
