@@ -101,7 +101,11 @@ export default defineNuxtModule({
 
     nuxt.hook('nitro:config', async nitroConfig => {
       nitroConfig.publicAssets ||= []
-      nitroConfig.publicAssets.push({ dir: baseDir })
+      nitroConfig.publicAssets.push({
+        dir: buildDir,
+        maxAge: isDev ? 0 : 60 * 60 * 24 * 365,
+        baseURL: joinURL('/', dbFolder)
+      })
     })
 
     nuxt.hook('close', async () => {
