@@ -26,12 +26,12 @@
     "dev:prepare": "nuxt-module-build --stub && nuxi prepare example"
   },
   "dependencies": {
+    "@11ty/gray-matter": "^2.0.2",
     "@nuxt/kit": "^3.16.0",
     "@xmldom/xmldom": "^0.9.10",
     "csvtojson": "^2.0.14",
     "destr": "^1.2.2",
     "fuzzysort": "^3.1.0",
-    "gray-matter": "^4.0.3",
     "hookable": "^5.5.3",
     "html-tags": "^4.0.0",
     "js-yaml": "^4.2.0",
